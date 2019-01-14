@@ -11,7 +11,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request){
 
 func main(){
 	port := ":8080"
-	http.HandleFunc("/",rootHandler)
+	http.Handle("/",http.FileServer(http.Dir("./static")))
 	fmt.Printf("Listening on port %s\n",port)
 	http.ListenAndServe(port,nil)
 }
