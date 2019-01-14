@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"encoding/csv"
 	"os"
+	"encoding/json"
 )
 
 type Course struct {
@@ -46,10 +47,6 @@ type Course struct {
 	EndDate	string
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w,"<p> Hello World </p>")
-}
-
 func handleErr(e error){
 	if e != nil {
 		panic(e)
@@ -71,8 +68,19 @@ func parseClases() (ret []Course ) {
 	return ret
 }
 
+func classHandler(w http.ResponseWriter, r *http.Request){
+	//This function handles sending the data when we receive a get request
+	classes := parseClases()
+	for _,course := range classes {
+		jason,err := json.Marshal(course)
+		handleErr(err)
+		fmt.Fprintf(w,"%s",jason)
+	}
+}
+
 func main(){
 	port := ":8080"
+	http.HandleFunc("/classes",classHandler)
 	http.Handle("/",http.FileServer(http.Dir("./static")))
 	fmt.Printf("Listening on port %s\n",port)
 	parseClases()
