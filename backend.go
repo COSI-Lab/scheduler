@@ -51,9 +51,12 @@ type Course struct {
 	//UNK should never reach the front end
 	Kind string
 }
+
+//Global Variable (Used for computational efficency)
 var cList []Course
 
 func handleErr(e error){
+	//This function takes an error and panics if it exists, used so frequently it makes sense to be a function
 	if e != nil {
 		panic(e)
 	}
@@ -66,7 +69,10 @@ func parseClases() (ret []Course ) {
 	handleErr(err)
 	reader := csv.NewReader(fileData)
 	for rec,err := reader.Read(); err == nil;rec,err = reader.Read() {
+		//Gets each row of the file and parses into tmp
 		tmp := Course{ ClassNbr: rec[0], Subject: rec[1], Catalog: rec[2], Section: rec[3], Description:rec[4], Capacity:rec[5], Enrolled:rec[6], Seats:rec[7], Waitlist:rec[8], Cart:rec[9], Overflow:rec[10], StartTime:rec[11], EndTime:rec[12], MeetingDays:rec[12], Room:rec[14], Prof:rec[15], StartDate:rec[16], EndDate:rec[17] , Kind:"UNK" }
+
+		//Guesses at what kind of class the class is (lecture, lab or discussion)
 		if len([]rune(tmp.MeetingDays)) > 1 {
 			tmp.Kind = "lec"
 		} else {
@@ -88,7 +94,7 @@ func parseClases() (ret []Course ) {
 }
 
 func classHandler(w http.ResponseWriter, r *http.Request){
-	//This function handles sending the data when we receive a get request
+	//This function handles sending the list of classes as json objects. 
 	classes := cList //parseClases()
 	for _,course := range classes {
 		jason,err := json.Marshal(course)
